@@ -4,9 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Controller;
-import org.firstinspires.ftc.teamcode.Drivetrain;
-import org.firstinspires.ftc.teamcode.FieldCenterAuto;
-import org.firstinspires.ftc.teamcode.DriverControlFolder.ConeTransporter1_5;
 
 @TeleOp(name = "Tele-op(1.5)", group = "Tele-Op")
 public class Teleop1_5 extends LinearOpMode {
@@ -19,6 +16,10 @@ public class Teleop1_5 extends LinearOpMode {
     private boolean b_Press = false;
     private boolean stackState = false;
 
+    public enum TIP {
+        TIPPING,
+        NOT_TIPPING
+    }
 
     public void runOpMode() {
         telemetry.clear();
@@ -40,6 +41,7 @@ public class Teleop1_5 extends LinearOpMode {
         int level = 16;
         int inConeLevel = 16;
         coneTransporter.init();
+        TIP tip = TIP.NOT_TIPPING;
         waitForStart();
         while (opModeIsActive()) {
             try {
@@ -50,38 +52,42 @@ public class Teleop1_5 extends LinearOpMode {
                 double gamepadRot;
                 boolean rotationToggle;
                 boolean strafeToggle;
+                if (tip == TIP.NOT_TIPPING) {
+                    if (Math.abs(controller.gamepad1X) > 0.01) {
+                        gamepadX = controller.gamepad1X;
+                    } else if (Math.abs(controller.gamepad2X) > 0.01) {
+                        gamepadX = controller.gamepad2X;
+                    } else {
+                        gamepadX = 0;
+                    }
+                    if (Math.abs(controller.gamepad1Y) > 0.01) {
+                        gamepadY = controller.gamepad1Y;
+                    } else if (Math.abs(controller.gamepad2Y) > 0.01) {
+                        gamepadY = controller.gamepad2Y;
+                    } else {
+                        gamepadY = 0;
+                    }
+                    if (Math.abs(controller.gamepad1Rot) > 0.01) {
+                        gamepadRot = -controller.gamepad1Rot;
+                    } else if (Math.abs(controller.gamepad2Rot) > 0.01) {
+                        gamepadRot = -controller.gamepad2Rot;
+                    } else {
+                        gamepadRot = 0;
+                    }
+                    rotationToggle = controller.rightTrigger >= 0.2f;
+                    strafeToggle = controller.rightTrigger >= 0.2f;
+                    fieldCenterAuto.drive(gamepadX, gamepadY, gamepadRot, rotationToggle, strafeToggle);
+                    telemetry.addData("gamepadX: ", gamepadX);
+                    telemetry.addData("gamepadY: ", gamepadY);
+                    telemetry.addData("gamepadRot: ", gamepadRot);
+                    telemetry.addData("imuMeasure: ", fieldCenterAuto.imuMeasure);
+                    telemetry.addData("leftBackPower: ", fieldCenterAuto.leftBackPower);
+                    telemetry.addData("leftFrontPower: ", fieldCenterAuto.leftFrontPower);
+                    telemetry.addData("rightBackPower: ", fieldCenterAuto.rightBackPower);
+                    telemetry.addData("rightFrontPower: ", fieldCenterAuto.rightFrontPower);
 
-                if (Math.abs(controller.gamepad1X) > 0.01) {
-                    gamepadX = controller.gamepad1X;
-                } else if (Math.abs(controller.gamepad2X) > 0.01) {
-                    gamepadX = controller.gamepad2X;
-                } else {
-                    gamepadX = 0;
-                }
-                if (Math.abs(controller.gamepad1Y) > 0.01) {
-                    gamepadY = controller.gamepad1Y;
-                } else if (Math.abs(controller.gamepad2Y) > 0.01) {
-                    gamepadY = controller.gamepad2Y;
-                } else {
-                    gamepadY = 0;
-                }
-                if (Math.abs(controller.gamepad1Rot) > 0.01) {
-                    gamepadRot = -controller.gamepad1Rot;
-                } else if (Math.abs(controller.gamepad2Rot) > 0.01) {
-                    gamepadRot = -controller.gamepad2Rot;
-                } else {
-                    gamepadRot = 0;
-                }
-                rotationToggle = controller.rightTrigger >= 0.2f;
-                strafeToggle = controller.rightTrigger >= 0.2f;
 
-                float roll = fieldCenterAuto.getRoll();
-                if(roll <= 2){
-                   fieldCenterAuto.checkifrobotnottipping();
                 }
-
-
-                fieldCenterAuto.drive(gamepadX, gamepadY, gamepadRot, rotationToggle, strafeToggle);
 
                 //CONETRANSPORTER___________________________________________________________________________
                 if (controller.y) {
@@ -137,49 +143,35 @@ public class Teleop1_5 extends LinearOpMode {
                         coneTransporter.moveUp();
                     }
 
-                //TELEMETRY___________________________________________________________________________
-//
-//                //adjusts strafe toggle
-//                if(controller.x2 && fieldCenterAuto.STRAFE_TOGGLE_FACTOR <= 1){
-//                    fieldCenterAuto.STRAFE_TOGGLE_FACTOR+=0.05;
-//                } else if(controller.b2 && fieldCenterAuto.STRAFE_TOGGLE_FACTOR >= 0){
-//                    fieldCenterAuto.STRAFE_TOGGLE_FACTOR-=0.05;
-//                }
-//
-//                //adjusts rotation toggle
-//                if(controller.y2 && fieldCenterAuto.ROTATION_TOGGLE_FACTOR <= 1){
-//                    fieldCenterAuto.ROTATION_TOGGLE_FACTOR+=0.05;
-//                }else if(controller.a2 && fieldCenterAuto.ROTATION_TOGGLE_FACTOR >= 0){
-//                    fieldCenterAuto.ROTATION_TOGGLE_FACTOR-=0.05;
-//                }
-//                if(controller.x2 && fieldCenterAuto.xyEffectivness <= 1){
-//                    fieldCenterAuto.xyEffectivness+=0.05;
-//                } else if(controller.b2 && fieldCenterAuto.xyEffectivness >= 0){
-//                    fieldCenterAuto.xyEffectivness-=0.05;
-//                }
-//
-//                //adjusts rotation toggle
-//                if(controller.y2 && fieldCenterAuto.rotationEffectivness <= 1){
-//                    fieldCenterAuto.rotationEffectivness+=0.05;
-//                }else if(controller.a2 && fieldCenterAuto.rotationEffectivness >= 0){
-//                    fieldCenterAuto.rotationEffectivness-=0.05;
-//                }
-//
-//                //adjust linear slide speed
-//                if(controller.dpadUp && coneTransporter.linearSlidesSpeed <= 1){
-//                    coneTransporter.linearSlidesSpeed+=0.075;
-//                }else if(controller.dpadDown && fieldCenterAuto.ROTATION_TOGGLE_FACTOR >= 0){
-//                    coneTransporter.linearSlidesSpeed-=0.075;
-           }
 
-                telemetry.addData("gamepadX: ", gamepadX);
-                telemetry.addData("gamepadY: ", gamepadY);
-                telemetry.addData("gamepadRot: ", gamepadRot);
-                telemetry.addData("imuMeasure: ", fieldCenterAuto.imuMeasure);
-                telemetry.addData("leftBackPower: ", fieldCenterAuto.leftBackPower);
-                telemetry.addData("leftFrontPower: ", fieldCenterAuto.leftFrontPower);
-                telemetry.addData("rightBackPower: ", fieldCenterAuto.rightBackPower);
-                telemetry.addData("rightFrontPower: ", fieldCenterAuto.rightFrontPower);
+                    //GRIPPER__________________________________________________________________________________
+
+                    if (controller.leftBumper && !(controller.rightBumper)) {
+                        coneTransporter.setGripperPosition(.75);
+                        coneTransporter.grip();
+                    }
+
+                    if (controller.rightBumper && !(controller.leftBumper)) {
+                        coneTransporter.setGripperPosition(1.0);
+                        coneTransporter.grip();
+                    }
+                    //Program for touch sensor
+//                if(coneTransporter.touchSensor.isPressed() && coneTransporter.riseLevel == -1){
+//                    coneTransporter.setGripperPosition(.75);
+//                    coneTransporter.grip();
+//               }
+                }
+                float roll = fieldCenterAuto.getRoll();
+                if (roll >= -20) {
+                    tip = TIP.TIPPING;
+                    fieldCenterAuto.checkifrobotnottipping();
+                } else if (roll <= -60) {
+                    tip = TIP.TIPPING;
+                    fieldCenterAuto.checkifrobotnottipping();
+                } else{
+                    tip = TIP.NOT_TIPPING;
+                }
+
 
 
                 telemetry.addData("Linear slides speed", coneTransporter.linearSlidesSpeed);
@@ -189,26 +181,9 @@ public class Teleop1_5 extends LinearOpMode {
 //                telemetry.addData("limit Switch", coneTransporter.limitSwitch.getState());
                 telemetry.addData("Linear Slides Pos.", coneTransporter.linearSlides.getCurrentPosition());
                 telemetry.addData("Linear Slides Pos. Current var ", coneTransporter.LINEAR_SLIDES_CURRENT);
+                telemetry.addData("ROBOT TIP STATE: ", tip);
                 //telemetry.addData("stackLevel", coneTransporter.telemetryLevel.get(coneTransporter.telemetryListIndex));
 
-
-
-                //GRIPPER__________________________________________________________________________________
-
-                if (controller.leftBumper && !(controller.rightBumper)) {
-                    coneTransporter.setGripperPosition(.75);
-                    coneTransporter.grip();
-                }
-
-                if (controller.rightBumper && !(controller.leftBumper)) {
-                    coneTransporter.setGripperPosition(1.0);
-                    coneTransporter.grip();
-                }
-                //Program for touch sensor
-//                if(coneTransporter.touchSensor.isPressed() && coneTransporter.riseLevel == -1){
-//                    coneTransporter.setGripperPosition(.75);
-//                    coneTransporter.grip();
-//               }
 
             } catch (Exception exception) {
                 telemetry.addLine("Inside of the while loop:");

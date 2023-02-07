@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.DriverControlFolder;
 
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -7,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.Drivetrain;
 import org.firstinspires.ftc.teamcode.Mathematics;
 
 public class FieldCenterAuto1_5 extends Drivetrain1_5 {
@@ -27,12 +27,27 @@ public class FieldCenterAuto1_5 extends Drivetrain1_5 {
     public FieldCenterAuto1_5(Telemetry telemetry, HardwareMap hardwareMap) {
         super(telemetry, hardwareMap);
     }
-    public void checkifrobotnottipping(){
-        if(globalRollAngle <= -2){
+
+    public void checkifrobotnottipping() {
+        if (globalRollAngle >= -34) {
             //Here it checks if the tip angle exceeds 8 degrees
+            rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             leftFrontMotor.setPower(1.0);
             rightFrontMotor.setPower(1.0);
+        } else if (globalRollAngle <= -50) {
+            rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            rightBackMotor.setPower(1.0);
+            leftBackMotor.setPower(1.0);
+        } else {
+            rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         }
+    }
+
+    public void checkIfRobotTippingBackward() {
+
     }
 
     public float getRoll() {
@@ -54,8 +69,6 @@ public class FieldCenterAuto1_5 extends Drivetrain1_5 {
             gamepadX *= STRAFE_TOGGLE_FACTOR;
             gamepadY *= STRAFE_TOGGLE_FACTOR;
         }
-
-
 
 
         // gamepadRot is negated because in math, a counterclockwise rotation is positive
@@ -81,17 +94,17 @@ public class FieldCenterAuto1_5 extends Drivetrain1_5 {
 //        telemetry.addData("theta: ", theta);
         double power = Math.hypot(rotatedX, rotatedY);
 //        telemetry.addData("power: ", power);
-        double sin = Math.sin(theta - Math.PI/4);
+        double sin = Math.sin(theta - Math.PI / 4);
 //        telemetry.addData("sin: ", sin);
-        double cos = Math.cos(theta - Math.PI/4);
+        double cos = Math.cos(theta - Math.PI / 4);
 //        telemetry.addData("cos: ", cos);
-        double max = Math.max(Math.abs(sin),Math.abs(cos));
+        double max = Math.max(Math.abs(sin), Math.abs(cos));
 //        telemetry.addData("max: ", max);
 
-        leftBackPower = power * sin/max + turn;
-        leftFrontPower = power * cos/max + turn;
-        rightBackPower = power * cos/max - turn;
-        rightFrontPower = power * sin/max - turn;
+        leftBackPower = power * sin / max + turn;
+        leftFrontPower = power * cos / max + turn;
+        rightBackPower = power * cos / max - turn;
+        rightFrontPower = power * sin / max - turn;
 
 
         if ((power + Math.abs(turn)) > 1) {
@@ -100,7 +113,6 @@ public class FieldCenterAuto1_5 extends Drivetrain1_5 {
             leftBackPower /= power + Math.abs(turn);
             rightBackPower /= power + Math.abs(turn);
         }
-
 
 
         leftBackMotor.setPower(leftBackPower);
