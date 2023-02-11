@@ -60,8 +60,8 @@ public class Controller {
     public double collectorRevCCW;
     public double collectorRevCW;
     public double liftRevCCW;
-    public double rightTrigger;
-    public double leftTrigger;
+    public boolean rightTrigger;
+    public boolean leftTrigger;
     public boolean toggle;
 
     public Controller(Gamepad gamepad1, Gamepad gamepad2) {
@@ -118,8 +118,8 @@ public class Controller {
         dpadUp = gamepadKeyboard1.activeBefore.contains("dpad_up");
         dpadRight = gamepadKeyboard1.activeBefore.contains("dpad_right");
         dpadLeft = gamepadKeyboard1.activeBefore.contains("dpad_left");
-        rightTrigger = gamepad1.right_trigger;
-        leftTrigger = gamepad1.left_trigger;
+        rightTrigger = gamepadKeyboard1.activeBefore.contains("left_trigger");
+        leftTrigger = gamepadKeyboard1.activeBefore.contains("right_trigger");
 
         rightStickButton =  gamepadKeyboard1.activeBefore.contains("right_stick_button");
         leftStickButton = gamepadKeyboard1.activeBefore.contains("left_stick_button");

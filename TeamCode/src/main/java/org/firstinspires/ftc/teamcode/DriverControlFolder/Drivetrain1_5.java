@@ -15,7 +15,7 @@ public abstract class Drivetrain1_5 extends Mechanism {
     protected DcMotor rightBackMotor;
     protected DcMotor rightFrontMotor;
 
-    protected BNO055IMU imu;
+    public static BNO055IMU imu;
 
     public Drivetrain1_5(Telemetry telemetry, HardwareMap hardwareMap) {
         super(telemetry, hardwareMap);
@@ -37,12 +37,12 @@ public abstract class Drivetrain1_5 extends Mechanism {
         leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    /*  public void initializeIMU() {
+      public static void initializeIMU() {
         // don't touch please
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
-    }*/
+    }
 
     public double readFromIMU() {
         IMUHeading.imuAngle = -imu.getAngularOrientation().firstAngle;

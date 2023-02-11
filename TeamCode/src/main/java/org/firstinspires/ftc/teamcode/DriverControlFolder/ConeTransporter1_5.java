@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.DriverControlFolder;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Mechanism;
@@ -72,6 +73,7 @@ public class ConeTransporter1_5 extends Mechanism {
         linearSlides = this.hardwareMap.get(DcMotor.class, "linearSlides");
         linearSlides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         gripper = this.hardwareMap.get(Servo.class, "gripper");
+
 //        limitSwitch = this.hardwareMap.get(DigitalChannel.class, "limit switch");
 //        touchSensor = this.hardwareMap.get(TouchSensor.class, "touchSensor");
     }
@@ -174,7 +176,7 @@ public class ConeTransporter1_5 extends Mechanism {
 
 
     public void moveUp() {
-        if (arrayListIndex >= 0) {
+        if (arrayListIndex > 0) {
             if (arrayListIndex % 2 == 0) {
                 arrayListIndex = Math.max(arrayListIndex - 2, 0);
                 telemetryListIndex = Math.max(telemetryListIndex - 2, 0);
@@ -183,6 +185,14 @@ public class ConeTransporter1_5 extends Mechanism {
                 arrayListIndex-=1;
             }
             setHeight(arrayListIndex);
+        }
+    }
+    public void reset(){
+        if (arrayListIndex < 9) {
+            if (!(arrayListIndex % 2 == 0)) {
+                telemetryListIndex += 1;
+                arrayListIndex+=1;
+            }
         }
     }
     public void setHeight(int index) {

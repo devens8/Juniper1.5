@@ -2,8 +2,12 @@ package org.firstinspires.ftc.teamcode.DriverControlFolder;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.AutonomousFolder.BlueLeft;
 import org.firstinspires.ftc.teamcode.Controller;
+
+import java.util.Objects;
 
 @TeleOp(name = "Tele-op(1.5)", group = "Tele-Op")
 public class Teleop1_5 extends LinearOpMode {
@@ -14,7 +18,7 @@ public class Teleop1_5 extends LinearOpMode {
     private ConeTransporter1_5 coneTransporter;
     // Check if B is pressed
     private boolean b_Press = false;
-    private boolean stackState = false;
+    private boolean stackState = true;
 
     public enum TIP {
         TIPPING,
@@ -23,6 +27,7 @@ public class Teleop1_5 extends LinearOpMode {
 
     public void runOpMode() {
         telemetry.clear();
+
 
         try {
             // setup
@@ -35,6 +40,11 @@ public class Teleop1_5 extends LinearOpMode {
             telemetry.addLine("Outside of the while loop:");
             telemetry.addLine(exception.getMessage());
             telemetry.update();
+             if(Objects.equals(exception.getMessage(), "The IMU was not initialized")){
+                telemetry.addData("-", "Detected");
+                telemetry.update();
+            }
+
         }
 
         telemetry.update();
@@ -50,8 +60,8 @@ public class Teleop1_5 extends LinearOpMode {
                 double gamepadX;
                 double gamepadY;
                 double gamepadRot;
-                boolean rotationToggle;
-                boolean strafeToggle;
+                boolean rotationToggle = false;
+                boolean strafeToggle = false;
                 if (tip == TIP.NOT_TIPPING) {
                     if (Math.abs(controller.gamepad1X) > 0.01) {
                         gamepadX = controller.gamepad1X;
@@ -74,8 +84,8 @@ public class Teleop1_5 extends LinearOpMode {
                     } else {
                         gamepadRot = 0;
                     }
-                    rotationToggle = controller.rightTrigger >= 0.2f;
-                    strafeToggle = controller.rightTrigger >= 0.2f;
+//                    rotationToggle = controller.rightTrigger >= 0.2f;
+//                    strafeToggle = controller.rightTrigger >= 0.2f;
                     fieldCenterAuto.drive(gamepadX, gamepadY, gamepadRot, rotationToggle, strafeToggle);
                     telemetry.addData("gamepadX: ", gamepadX);
                     telemetry.addData("gamepadY: ", gamepadY);
@@ -91,14 +101,20 @@ public class Teleop1_5 extends LinearOpMode {
 
                 //CONETRANSPORTER___________________________________________________________________________
                 if (controller.y) {
+                    coneTransporter.reset();
+                    stackState = false;
                     coneTransporter.setRiseLevel(3);
                     coneTransporter.setGripperPosition(1.0);
                     coneTransporter.lift();
-                } else if (controller.a) {
+                } else if (controller.a){
+                    coneTransporter.reset();
+                    stackState = false;
                     coneTransporter.setRiseLevel(1);
                     coneTransporter.setGripperPosition(1.0);
                     coneTransporter.lift();
                 } else if (controller.x) {
+                    coneTransporter.reset();
+                    stackState = false;
                     coneTransporter.setRiseLevel(2);
                     coneTransporter.setGripperPosition(1.0);
                     coneTransporter.lift();
@@ -107,6 +123,7 @@ public class Teleop1_5 extends LinearOpMode {
                 //This will check if b is pressed if yes then it will check the position of the slides and decide where it should go
                 if (controller.b & !b_Press) {
                     b_Press = true;
+                    coneTransporter.reset();
                     if (coneTransporter.linearSlides.getTargetPosition() == coneTransporter.equate(100)) {
                         coneTransporter.setRiseLevel(-1);
                     } else {
@@ -116,6 +133,7 @@ public class Teleop1_5 extends LinearOpMode {
                     coneTransporter.lift();
                 } else {
                     b_Press = false;
+                }
 //                }
 //                if (controller.dpadDown && level > 12) {
 //                    level--;
@@ -135,13 +153,22 @@ public class Teleop1_5 extends LinearOpMode {
 //                    coneTransporter.setPosLevel(inConeLevel);
 //                    coneTransporter.down();
 //                }
-                    if (controller.dpadDown) {
+                    if (controller.leftTrigger) {
+                        if(!stackState && coneTransporter.arrayListIndex > 0){
+                            coneTransporter.setHeight(coneTransporter.arrayListIndex);
+                        }else{
+                            coneTransporter.moveDown();
+                        }
                         stackState = true;
-                        coneTransporter.moveDown();
-                    } else if (controller.dpadUp) {
+                    } else if (controller.rightTrigger) {
+                        if(!stackState && coneTransporter.arrayListIndex > 0){
+                            coneTransporter.setHeight(coneTransporter.arrayListIndex);
+                        }else{
+                            coneTransporter.moveUp();
+                        }
                         stackState = true;
-                        coneTransporter.moveUp();
                     }
+
 
 
                     //GRIPPER__________________________________________________________________________________
@@ -160,18 +187,22 @@ public class Teleop1_5 extends LinearOpMode {
 //                    coneTransporter.setGripperPosition(.75);
 //                    coneTransporter.grip();
 //               }
-                }
-                float roll = fieldCenterAuto.getRoll();
-                if (roll >= -20) {
-                    tip = TIP.TIPPING;
-                    fieldCenterAuto.checkifrobotnottipping();
-                } else if (roll <= -60) {
-                    tip = TIP.TIPPING;
-                    fieldCenterAuto.checkifrobotnottipping();
-                } else{
-                    tip = TIP.NOT_TIPPING;
-                }
+                    telemetry.addData("-", "tip is activated");
 
+                float roll = fieldCenterAuto.getRoll();
+                if (roll <= 10) {
+                    tip = TIP.TIPPING;
+                    fieldCenterAuto.checkifrobotnottipping();
+                } else if (roll >= 45) {
+                    tip = TIP.TIPPING;
+                    fieldCenterAuto.checkifrobotnottipping();
+                } else {
+                    tip = TIP.NOT_TIPPING;
+                    fieldCenterAuto.rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
+                    fieldCenterAuto.rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+                    fieldCenterAuto.leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+                    fieldCenterAuto.leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
+                }
 
 
                 telemetry.addData("Linear slides speed", coneTransporter.linearSlidesSpeed);
@@ -182,7 +213,10 @@ public class Teleop1_5 extends LinearOpMode {
                 telemetry.addData("Linear Slides Pos.", coneTransporter.linearSlides.getCurrentPosition());
                 telemetry.addData("Linear Slides Pos. Current var ", coneTransporter.LINEAR_SLIDES_CURRENT);
                 telemetry.addData("ROBOT TIP STATE: ", tip);
-                //telemetry.addData("stackLevel", coneTransporter.telemetryLevel.get(coneTransporter.telemetryListIndex));
+                telemetry.addData("stackLevel", coneTransporter.arrayListIndex);
+                telemetry.addLine()
+                    .addData("tip angle", roll);
+
 
 
             } catch (Exception exception) {

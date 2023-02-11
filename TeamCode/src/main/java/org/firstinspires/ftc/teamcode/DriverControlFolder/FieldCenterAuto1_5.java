@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.DriverControlFolder;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -29,26 +30,26 @@ public class FieldCenterAuto1_5 extends Drivetrain1_5 {
     }
 
     public void checkifrobotnottipping() {
-        if (globalRollAngle >= -34) {
+        if (globalRollAngle <= 15) {
             //Here it checks if the tip angle exceeds 8 degrees
-            rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-            leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
             leftFrontMotor.setPower(1.0);
             rightFrontMotor.setPower(1.0);
-        } else if (globalRollAngle <= -50) {
-            rightBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        } else if (globalRollAngle >= 40) {
+            rightBackMotor.setDirection(DcMotor.Direction.REVERSE);
+            leftBackMotor.setDirection(DcMotor.Direction.FORWARD);
             rightBackMotor.setPower(1.0);
             leftBackMotor.setPower(1.0);
         } else {
-            rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-            leftFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightBackMotor.setDirection(DcMotor.Direction.FORWARD);
+            rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
+            leftBackMotor.setDirection(DcMotor.Direction.REVERSE);
         }
     }
 
-    public void checkIfRobotTippingBackward() {
 
-    }
 
     public float getRoll() {
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
